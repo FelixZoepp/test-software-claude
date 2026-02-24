@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "N8N-basierte Automation zur Generierung von Lead-Funnels mit Webflow-Integration",
   "scripts": {
+    "start": "node server.js",
     "generate-funnel": "node scripts/generate-funnel.js",
     "deploy": "node scripts/deploy-to-webflow.js",
     "validate": "node scripts/validate-config.js",

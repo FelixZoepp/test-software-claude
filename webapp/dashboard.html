@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Funnel Generator - Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/dashboard/assets/css/dashboard.css">
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/></svg>
+        <span>Funnel Generator</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-view="editor">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Neuer Funnel
+      </a>
+      <a href="#" class="nav-item" data-view="funnels">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Meine Funnels
+      </a>
+      <a href="#" class="nav-item" data-view="leads">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Leads
+      </a>
+      <a href="#" class="nav-item" data-view="domains">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        Domains
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+    <!-- ════════ EDITOR VIEW ════════ -->
+    <div class="view active" id="view-editor">
+      <div class="editor-layout">
+        <!-- Linke Seite: Konfiguration -->
+        <div class="editor-panel">
+          <div class="panel-header">
+            <h2>Funnel konfigurieren</h2>
+            <p class="panel-subtitle">Passen Sie Ihren Lead-Funnel an. Die Vorschau aktualisiert sich live.</p>
+          </div>
+
+          <div class="panel-body">
+            <!-- Tabs -->
+            <div class="tabs">
+              <button class="tab active" data-tab="tab-general">Allgemein</button>
+              <button class="tab" data-tab="tab-design">Design</button>
+              <button class="tab" data-tab="tab-form">Formular</button>
+              <button class="tab" data-tab="tab-metrics">Metriken</button>
+              <button class="tab" data-tab="tab-download">Download</button>
+            </div>
+
+            <!-- Tab: Allgemein -->
+            <div class="tab-content active" id="tab-general">
+              <div class="field">
+                <label>Firmenname</label>
+                <input type="text" id="cfg-companyName" value="Mein Unternehmen" placeholder="Ihre Firma GmbH">
+              </div>
+              <div class="field">
+                <label>Headline</label>
+                <input type="text" id="cfg-headline" value="Ihr kostenloses E-Book wartet" placeholder="Haupt-Überschrift">
+              </div>
+              <div class="field">
+                <label>Subheadline</label>
+                <textarea id="cfg-subheadline" rows="2" placeholder="Untertitel / Beschreibung">Tragen Sie Ihre Daten ein und erhalten Sie sofort Zugang zu unserem exklusiven Angebot.</textarea>
+              </div>
+              <div class="field">
+                <label>Button-Text</label>
+                <input type="text" id="cfg-ctaText" value="Jetzt herunterladen" placeholder="Call-to-Action">
+              </div>
+              <div class="field">
+                <label>Benefits (eine pro Zeile)</label>
+                <textarea id="cfg-benefits" rows="3" placeholder="Ein Vorteil pro Zeile">Sofortiger Zugang zum Download
+Kostenlos und unverbindlich
+Expertenwissen kompakt zusammengefasst</textarea>
+              </div>
+              <div class="field">
+                <label>Logo-URL (optional)</label>
+                <input type="url" id="cfg-logoUrl" placeholder="https://...">
+              </div>
+            </div>
+
+            <!-- Tab: Design -->
+            <div class="tab-content" id="tab-design">
+              <div class="color-grid">
+                <div class="field">
+                  <label>Primärfarbe</label>
+                  <div class="color-input">
+                    <input type="color" id="cfg-primaryColor" value="#2563EB">
+                    <input type="text" id="cfg-primaryColorText" value="#2563EB" class="color-text">
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Sekundärfarbe</label>
+                  <div class="color-input">
+                    <input type="color" id="cfg-secondaryColor" value="#1E40AF">
+                    <input type="text" id="cfg-secondaryColorText" value="#1E40AF" class="color-text">
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Akzentfarbe</label>
+                  <div class="color-input">
+                    <input type="color" id="cfg-accentColor" value="#F59E0B">
+                    <input type="text" id="cfg-accentColorText" value="#F59E0B" class="color-text">
+                  </div>
+                </div>
+              </div>
+              <div class="field">
+                <label>Danke-Überschrift</label>
+                <input type="text" id="cfg-thankYouHeadline" value="Vielen Dank!">
+              </div>
+              <div class="field">
+                <label>Danke-Text</label>
+                <textarea id="cfg-thankYouText" rows="2">Ihr Download steht bereit. Prüfen Sie auch Ihren Posteingang.</textarea>
+              </div>
+            </div>
+
+            <!-- Tab: Formular -->
+            <div class="tab-content" id="tab-form">
+              <p class="field-hint">Felder für das Lead-Formular konfigurieren:</p>
+              <div id="form-fields-list"></div>
+              <button class="btn btn-outline btn-sm" id="addFieldBtn">+ Feld hinzufügen</button>
+            </div>
+
+            <!-- Tab: Metriken -->
+            <div class="tab-content" id="tab-metrics">
+              <div class="field">
+                <label>Conversion-Ziel</label>
+                <input type="range" id="cfg-conversionGoal" min="0.01" max="0.15" step="0.01" value="0.05">
+                <div class="range-labels">
+                  <span>1%</span>
+                  <span class="range-value" id="conversionDisplay">5%</span>
+                  <span>15%</span>
+                </div>
+              </div>
+              <div class="metrics-info" id="metricsInfo">
+                <div class="metrics-badge balanced">Balanced</div>
+                <p>Social Proof wird angezeigt. Kein Urgency-Banner.</p>
+              </div>
+              <div class="field">
+                <label>Kunden-E-Mail (Lead-Benachrichtigung)</label>
+                <input type="email" id="cfg-customerEmail" placeholder="kunde@example.com">
+              </div>
+              <div class="field">
+                <label>Webhook-URL (optional)</label>
+                <input type="url" id="cfg-leadWebhookUrl" placeholder="https://n8n.example.com/webhook/lead-submit">
+                <p class="field-hint">Leer lassen = integrierte Lead-Erfassung wird verwendet</p>
+              </div>
+            </div>
+
+            <!-- Tab: Download -->
+            <div class="tab-content" id="tab-download">
+              <div class="field">
+                <label>Dateiname</label>
+                <input type="text" id="cfg-downloadFileName" value="download.pdf" placeholder="dateiname.pdf">
+              </div>
+              <div class="field">
+                <label>Download-URL</label>
+                <input type="url" id="cfg-downloadFileUrl" placeholder="https://example.com/datei.pdf">
+                <p class="field-hint">Direkte URL zur herunterladbaren Datei</p>
+              </div>
+              <div class="field">
+                <label>Datenschutz-URL</label>
+                <input type="url" id="cfg-privacyUrl" value="#datenschutz" placeholder="https://example.com/datenschutz">
+              </div>
+            </div>
+          </div>
+
+          <!-- Aktionen -->
+          <div class="panel-footer">
+            <button class="btn btn-primary btn-lg" id="saveBtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Funnel speichern &amp; generieren
+            </button>
+          </div>
+        </div>
+
+        <!-- Rechte Seite: Preview -->
+        <div class="preview-panel">
+          <div class="preview-toolbar">
+            <div class="preview-device-btns">
+              <button class="device-btn active" data-device="desktop" title="Desktop">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              </button>
+              <button class="device-btn" data-device="tablet" title="Tablet">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+              </button>
+              <button class="device-btn" data-device="mobile" title="Mobile">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+              </button>
+            </div>
+            <span class="preview-label">Live-Vorschau</span>
+          </div>
+          <div class="preview-frame-wrapper" id="previewWrapper">
+            <iframe id="previewFrame" class="preview-frame device-desktop"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ FUNNELS VIEW ════════ -->
+    <div class="view" id="view-funnels">
+      <div class="view-header">
+        <h2>Meine Funnels</h2>
+        <button class="btn btn-primary" onclick="showView('editor')">+ Neuer Funnel</button>
+      </div>
+      <div class="funnel-grid" id="funnelGrid">
+        <div class="empty-state" id="emptyFunnels">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          <h3>Noch keine Funnels erstellt</h3>
+          <p>Erstellen Sie Ihren ersten Lead-Funnel.</p>
+          <button class="btn btn-primary" onclick="showView('editor')">Jetzt erstellen</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ LEADS VIEW ════════ -->
+    <div class="view" id="view-leads">
+      <div class="view-header">
+        <h2>Eingehende Leads</h2>
+        <select id="leadsFunnelSelect" class="select-input">
+          <option value="">Funnel auswählen...</option>
+        </select>
+      </div>
+      <div id="leadsContainer">
+        <div class="empty-state">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          <h3>Wählen Sie einen Funnel aus</h3>
+          <p>Leads werden hier angezeigt, sobald Ihr Funnel Formulardaten empfängt.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ DOMAINS VIEW ════════ -->
+    <div class="view" id="view-domains">
+      <div class="view-header">
+        <h2>Domain-Einstellungen</h2>
+      </div>
+      <div class="domain-content">
+        <div class="domain-card">
+          <h3>Custom Domain verbinden</h3>
+          <p class="domain-desc">Verbinden Sie Ihre eigene Domain mit einem Funnel, damit er direkt unter Ihrer Adresse erreichbar ist.</p>
+
+          <div class="field">
+            <label>Funnel auswählen</label>
+            <select id="domainFunnelSelect" class="select-input">
+              <option value="">Funnel auswählen...</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Ihre Domain</label>
+            <input type="text" id="domainInput" placeholder="leads.meinefirma.de">
+          </div>
+          <button class="btn btn-primary" id="saveDomainBtn">Domain verbinden</button>
+
+          <div class="domain-instructions">
+            <h4>DNS-Einrichtung</h4>
+            <p>Erstellen Sie einen <strong>A-Record</strong> oder <strong>CNAME-Record</strong> bei Ihrem Domain-Anbieter:</p>
+            <div class="dns-table">
+              <div class="dns-row dns-header">
+                <span>Typ</span><span>Host</span><span>Ziel</span>
+              </div>
+              <div class="dns-row">
+                <span>CNAME</span><span>leads</span><span id="serverHost">ihr-server.example.com</span>
+              </div>
+              <div class="dns-row">
+                <span>A</span><span>@</span><span>IP Ihres Servers</span>
+              </div>
+            </div>
+            <p class="field-hint">Nach der DNS-Änderung kann es bis zu 24 Stunden dauern, bis die Domain aktiv ist.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast Notifications -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/dashboard/assets/js/dashboard.js"></script>
+</body>
+</html>
