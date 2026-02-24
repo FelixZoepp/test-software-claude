@@ -1,0 +1,80 @@
+{
+  "funnel": {
+    "name": "Lead-Funnel",
+    "version": "1.0",
+    "pages": ["landing-page", "thank-you-page"],
+    "metrics": {
+      "conversionGoal": 0.05,
+      "targetLeadsPerDay": 50,
+      "bounceRateThreshold": 0.6
+    }
+  },
+  "branding": {
+    "companyName": "{{COMPANY_NAME}}",
+    "primaryColor": "#2563EB",
+    "secondaryColor": "#1E40AF",
+    "accentColor": "#F59E0B",
+    "fontFamily": "Inter, sans-serif",
+    "logoUrl": "{{LOGO_URL}}"
+  },
+  "leadForm": {
+    "fields": [
+      {
+        "name": "firstName",
+        "label": "Vorname",
+        "type": "text",
+        "required": true,
+        "placeholder": "Ihr Vorname"
+      },
+      {
+        "name": "lastName",
+        "label": "Nachname",
+        "type": "text",
+        "required": true,
+        "placeholder": "Ihr Nachname"
+      },
+      {
+        "name": "email",
+        "label": "E-Mail-Adresse",
+        "type": "email",
+        "required": true,
+        "placeholder": "ihre@email.de"
+      },
+      {
+        "name": "phone",
+        "label": "Telefonnummer",
+        "type": "tel",
+        "required": false,
+        "placeholder": "+49 123 456789"
+      },
+      {
+        "name": "company",
+        "label": "Unternehmen",
+        "type": "text",
+        "required": false,
+        "placeholder": "Ihr Unternehmen"
+      }
+    ],
+    "submitButtonText": "Jetzt herunterladen",
+    "privacyCheckbox": true,
+    "privacyText": "Ich stimme der Verarbeitung meiner Daten gemäß der Datenschutzerklärung zu."
+  },
+  "download": {
+    "fileName": "{{DOWNLOAD_FILE_NAME}}",
+    "fileDescription": "Ihr kostenloses E-Book / Whitepaper",
+    "triggerAfterSubmit": true
+  },
+  "notifications": {
+    "sendToCustomer": true,
+    "customerEmail": "{{CUSTOMER_EMAIL}}",
+    "sendConfirmationToLead": true,
+    "confirmationSubject": "Ihr Download ist bereit!",
+    "customerNotificationSubject": "Neuer Lead über Ihren Funnel"
+  },
+  "tracking": {
+    "enableAnalytics": true,
+    "facebookPixelId": "",
+    "googleAnalyticsId": "",
+    "customEvents": ["page_view", "form_start", "form_submit", "download_click"]
+  }
+}

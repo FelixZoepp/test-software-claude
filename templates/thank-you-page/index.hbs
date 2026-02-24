@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vielen Dank - {{companyName}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/funnel.css">
+  <style>
+    :root {
+      --primary: {{primaryColor}};
+      --secondary: {{secondaryColor}};
+      --accent: {{accentColor}};
+    }
+  </style>
+</head>
+<body>
+  <div class="thankyou-wrapper">
+    <div class="card">
+      {{#if logoUrl}}
+      <img src="{{logoUrl}}" alt="{{companyName}}" class="logo" style="margin-bottom: 1.5rem;">
+      {{/if}}
+      <div class="success-icon-large">&#10003;</div>
+      <h1>{{thankYouHeadline}}</h1>
+      <p>{{thankYouText}}</p>
+
+      <a href="{{downloadFileUrl}}" class="download-btn" id="downloadBtn">
+        {{downloadFileName}} herunterladen
+      </a>
+
+      <div class="next-steps">
+        <h3>Nächste Schritte:</h3>
+        <ol>
+          <li>Laden Sie die Datei herunter</li>
+          <li>Prüfen Sie Ihren Posteingang für die Bestätigungs-E-Mail</li>
+          <li>Bei Fragen antworten Sie einfach auf die E-Mail</li>
+        </ol>
+      </div>
+
+      <a href="/" class="back-link">&larr; Zurück zur Startseite</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('downloadBtn').addEventListener('click', function() {
+      if (typeof gtag === 'function') gtag('event', 'download_click');
+      if (typeof fbq === 'function') fbq('track', 'Lead');
+    });
+  </script>
+</body>
+</html>

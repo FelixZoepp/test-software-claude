@@ -1,0 +1,189 @@
+{
+  "name": "Lead-Verarbeitung & Weiterleitung",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-submit",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "lead-webhook",
+      "name": "Webhook - Lead empfangen",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "webhookId": "lead-submit"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Lead-Daten validieren und normalisieren\nconst lead = $input.first().json;\n\nconst errors = [];\n\nif (!lead.email || !lead.email.includes('@')) {\n  errors.push('Ungültige E-Mail-Adresse');\n}\nif (!lead.firstName || lead.firstName.trim().length < 1) {\n  errors.push('Vorname fehlt');\n}\nif (!lead.lastName || lead.lastName.trim().length < 1) {\n  errors.push('Nachname fehlt');\n}\n\nif (errors.length > 0) {\n  return [{ json: { valid: false, errors } }];\n}\n\n// Daten normalisieren\nconst normalizedLead = {\n  valid: true,\n  firstName: lead.firstName.trim(),\n  lastName: lead.lastName.trim(),\n  email: lead.email.trim().toLowerCase(),\n  phone: (lead.phone || '').trim(),\n  company: (lead.company || '').trim(),\n  submittedAt: lead.submittedAt || new Date().toISOString(),\n  source: lead.source || 'direct',\n  ipAddress: lead.ipAddress || 'unknown',\n  userAgent: lead.userAgent || 'unknown'\n};\n\nreturn [{ json: normalizedLead }];"
+      },
+      "id": "validate-lead",
+      "name": "Lead validieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.valid }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "check-valid",
+      "name": "Gültig?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": false,\n  \"errors\": {{ JSON.stringify($json.errors) }}\n}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "error-response",
+      "name": "Fehler-Antwort",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 460]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.webflow.com/v2/collections/{{ $env.WEBFLOW_COLLECTION_ID }}/items",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "webflowApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "fieldData",
+              "value": "={\n  \"name\": \"{{ $json.firstName }} {{ $json.lastName }}\",\n  \"email\": \"{{ $json.email }}\",\n  \"phone\": \"{{ $json.phone }}\",\n  \"company\": \"{{ $json.company }}\",\n  \"submitted-at\": \"{{ $json.submittedAt }}\",\n  \"source\": \"{{ $json.source }}\"\n}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "webflow-save-lead",
+      "name": "Webflow - Lead speichern",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [900, 140],
+      "credentials": {
+        "webflowApi": {
+          "id": "webflow-cred",
+          "name": "Webflow API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.SMTP_USER }}",
+        "toEmail": "={{ $env.NOTIFICATION_EMAIL }}",
+        "subject": "=Neuer Lead: {{ $json.firstName }} {{ $json.lastName }}",
+        "html": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n  <div style=\"background: #2563EB; color: white; padding: 20px; border-radius: 8px 8px 0 0;\">\n    <h2 style=\"margin: 0;\">Neuer Lead eingegangen</h2>\n    <p style=\"margin: 5px 0 0; opacity: 0.9;\">{{ $json.submittedAt }}</p>\n  </div>\n  <div style=\"padding: 24px; background: #f9fafb; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;\">\n    <table style=\"width: 100%; border-collapse: collapse;\">\n      <tr>\n        <td style=\"padding: 8px 0; font-weight: bold; width: 130px;\">Vorname:</td>\n        <td style=\"padding: 8px 0;\">{{ $json.firstName }}</td>\n      </tr>\n      <tr>\n        <td style=\"padding: 8px 0; font-weight: bold;\">Nachname:</td>\n        <td style=\"padding: 8px 0;\">{{ $json.lastName }}</td>\n      </tr>\n      <tr>\n        <td style=\"padding: 8px 0; font-weight: bold;\">E-Mail:</td>\n        <td style=\"padding: 8px 0;\"><a href=\"mailto:{{ $json.email }}\">{{ $json.email }}</a></td>\n      </tr>\n      <tr>\n        <td style=\"padding: 8px 0; font-weight: bold;\">Telefon:</td>\n        <td style=\"padding: 8px 0;\">{{ $json.phone || '-' }}</td>\n      </tr>\n      <tr>\n        <td style=\"padding: 8px 0; font-weight: bold;\">Unternehmen:</td>\n        <td style=\"padding: 8px 0;\">{{ $json.company || '-' }}</td>\n      </tr>\n      <tr>\n        <td style=\"padding: 8px 0; font-weight: bold;\">Quelle:</td>\n        <td style=\"padding: 8px 0;\">{{ $json.source }}</td>\n      </tr>\n    </table>\n  </div>\n</div>"
+      },
+      "id": "notify-customer",
+      "name": "Kunde benachrichtigen",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [900, 300],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-cred",
+          "name": "SMTP Credentials"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.SMTP_USER }}",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Ihr Download ist bereit!",
+        "html": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n  <div style=\"background: #2563EB; color: white; padding: 24px; border-radius: 8px 8px 0 0; text-align: center;\">\n    <h2 style=\"margin: 0;\">Vielen Dank, {{ $json.firstName }}!</h2>\n  </div>\n  <div style=\"padding: 24px; background: white; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;\">\n    <p>Ihr Download steht bereit. Klicken Sie auf den Button unten:</p>\n    <div style=\"text-align: center; margin: 24px 0;\">\n      <a href=\"{{DOWNLOAD_URL}}\" style=\"background: #2563EB; color: white; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-weight: 600;\">\n        Jetzt herunterladen\n      </a>\n    </div>\n    <p style=\"color: #6b7280; font-size: 14px;\">Falls der Button nicht funktioniert, kopieren Sie diesen Link in Ihren Browser:</p>\n    <p style=\"color: #6b7280; font-size: 14px; word-break: break-all;\">{{DOWNLOAD_URL}}</p>\n  </div>\n</div>"
+      },
+      "id": "confirm-lead",
+      "name": "Bestätigung an Lead",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1120, 300],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-cred",
+          "name": "SMTP Credentials"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Lead erfolgreich erfasst\",\n  \"downloadUrl\": \"{{DOWNLOAD_URL}}\"\n}"
+      },
+      "id": "success-response",
+      "name": "Erfolg-Antwort",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1340, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - Lead empfangen": {
+      "main": [
+        [{ "node": "Lead validieren", "type": "main", "index": 0 }]
+      ]
+    },
+    "Lead validieren": {
+      "main": [
+        [{ "node": "Gültig?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Gültig?": {
+      "main": [
+        [
+          { "node": "Webflow - Lead speichern", "type": "main", "index": 0 },
+          { "node": "Kunde benachrichtigen", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Fehler-Antwort", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Kunde benachrichtigen": {
+      "main": [
+        [{ "node": "Bestätigung an Lead", "type": "main", "index": 0 }]
+      ]
+    },
+    "Bestätigung an Lead": {
+      "main": [
+        [{ "node": "Erfolg-Antwort", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    { "name": "lead-processing" },
+    { "name": "funnel" }
+  ]
+}

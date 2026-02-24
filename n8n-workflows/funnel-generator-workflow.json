@@ -1,0 +1,188 @@
+{
+  "name": "Funnel Generator Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "generate-funnel",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook - Funnel erstellen",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "webhookId": "funnel-generator"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Funnel-Konfiguration aus Webhook-Daten extrahieren und validieren\nconst input = $input.first().json;\n\nconst config = {\n  companyName: input.companyName || 'Mein Unternehmen',\n  primaryColor: input.primaryColor || '#2563EB',\n  secondaryColor: input.secondaryColor || '#1E40AF',\n  accentColor: input.accentColor || '#F59E0B',\n  headline: input.headline || 'Ihr kostenloses Angebot wartet',\n  subheadline: input.subheadline || 'Tragen Sie Ihre Daten ein und erhalten Sie sofort Zugang.',\n  ctaText: input.ctaText || 'Jetzt herunterladen',\n  logoUrl: input.logoUrl || '',\n  downloadFileName: input.downloadFileName || 'download.pdf',\n  downloadFileUrl: input.downloadFileUrl || '',\n  customerEmail: input.customerEmail || '',\n  formFields: input.formFields || [\n    { name: 'firstName', label: 'Vorname', type: 'text', required: true },\n    { name: 'lastName', label: 'Nachname', type: 'text', required: true },\n    { name: 'email', label: 'E-Mail', type: 'email', required: true },\n    { name: 'phone', label: 'Telefon', type: 'tel', required: false },\n    { name: 'company', label: 'Unternehmen', type: 'text', required: false }\n  ],\n  benefits: input.benefits || [\n    'Sofortiger Zugang zum Download',\n    'Kostenlos und unverbindlich',\n    'Expertenwissen kompakt zusammengefasst'\n  ],\n  privacyUrl: input.privacyUrl || '#datenschutz',\n  thankYouHeadline: input.thankYouHeadline || 'Vielen Dank!',\n  thankYouText: input.thankYouText || 'Ihr Download steht bereit. Prüfen Sie auch Ihren Posteingang.',\n  // Metriken-basierte Anpassungen\n  metricsMode: input.metricsMode || 'standard',\n  conversionGoal: input.conversionGoal || 0.05,\n  targetAudience: input.targetAudience || 'general'\n};\n\n// Metriken-basierte Layout-Optimierung\nif (config.conversionGoal > 0.08) {\n  config.layoutMode = 'aggressive';\n  config.showUrgency = true;\n  config.showSocialProof = true;\n} else if (config.conversionGoal > 0.04) {\n  config.layoutMode = 'balanced';\n  config.showUrgency = false;\n  config.showSocialProof = true;\n} else {\n  config.layoutMode = 'minimal';\n  config.showUrgency = false;\n  config.showSocialProof = false;\n}\n\nreturn [{ json: config }];"
+      },
+      "id": "config-processor",
+      "name": "Konfiguration verarbeiten",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const config = $input.first().json;\n\n// Formular-Felder generieren\nconst formFieldsHtml = config.formFields.map(field => {\n  const required = field.required ? 'required' : '';\n  const requiredStar = field.required ? '<span class=\"required\">*</span>' : '';\n  return `\n    <div class=\"form-group\">\n      <label for=\"${field.name}\">${field.label}${requiredStar}</label>\n      <input\n        type=\"${field.type}\"\n        id=\"${field.name}\"\n        name=\"${field.name}\"\n        placeholder=\"${field.placeholder || ''}\"\n        ${required}\n        class=\"form-input\"\n      />\n    </div>`;\n}).join('\\n');\n\n// Benefits generieren\nconst benefitsHtml = config.benefits.map(b =>\n  `<li><svg class=\"check-icon\" viewBox=\"0 0 20 20\" fill=\"currentColor\"><path fill-rule=\"evenodd\" d=\"M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z\" clip-rule=\"evenodd\"/></svg>${b}</li>`\n).join('\\n');\n\n// Urgency-Banner\nconst urgencyHtml = config.showUrgency ? `\n  <div class=\"urgency-banner\">\n    <span class=\"urgency-icon\">⏰</span>\n    <span>Nur noch für kurze Zeit verfügbar!</span>\n  </div>` : '';\n\n// Social Proof\nconst socialProofHtml = config.showSocialProof ? `\n  <div class=\"social-proof\">\n    <div class=\"social-proof-item\">\n      <span class=\"social-number\">2.500+</span>\n      <span class=\"social-label\">Downloads</span>\n    </div>\n    <div class=\"social-proof-item\">\n      <span class=\"social-number\">4.8/5</span>\n      <span class=\"social-label\">Bewertung</span>\n    </div>\n    <div class=\"social-proof-item\">\n      <span class=\"social-number\">98%</span>\n      <span class=\"social-label\">Zufriedenheit</span>\n    </div>\n  </div>` : '';\n\n// Logo\nconst logoHtml = config.logoUrl\n  ? `<img src=\"${config.logoUrl}\" alt=\"${config.companyName}\" class=\"logo\" />`\n  : `<h2 class=\"logo-text\">${config.companyName}</h2>`;\n\n// Landing Page HTML\nconst landingPageHtml = `<!DOCTYPE html>\n<html lang=\"de\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>${config.headline} - ${config.companyName}</title>\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap\" rel=\"stylesheet\">\n  <style>\n    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }\n    :root {\n      --primary: ${config.primaryColor};\n      --secondary: ${config.secondaryColor};\n      --accent: ${config.accentColor};\n      --text: #1F2937;\n      --text-light: #6B7280;\n      --bg: #F9FAFB;\n      --white: #FFFFFF;\n      --border: #E5E7EB;\n      --radius: 12px;\n    }\n    body {\n      font-family: \"Inter\", -apple-system, sans-serif;\n      background: var(--bg);\n      color: var(--text);\n      line-height: 1.6;\n      min-height: 100vh;\n    }\n    .container {\n      max-width: 1100px;\n      margin: 0 auto;\n      padding: 2rem 1.5rem;\n    }\n    .header {\n      text-align: center;\n      padding: 1.5rem 0;\n    }\n    .logo { max-height: 48px; margin-bottom: 0.5rem; }\n    .logo-text {\n      font-size: 1.25rem;\n      font-weight: 700;\n      color: var(--primary);\n    }\n    .urgency-banner {\n      background: linear-gradient(135deg, #FEF3C7, #FDE68A);\n      border: 1px solid #F59E0B;\n      border-radius: var(--radius);\n      padding: 0.75rem 1.5rem;\n      text-align: center;\n      font-weight: 600;\n      margin-bottom: 2rem;\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      gap: 0.5rem;\n    }\n    .hero {\n      display: grid;\n      grid-template-columns: 1fr 1fr;\n      gap: 3rem;\n      align-items: start;\n      margin-top: 1rem;\n    }\n    @media (max-width: 768px) {\n      .hero { grid-template-columns: 1fr; gap: 2rem; }\n    }\n    .hero-content h1 {\n      font-size: 2.25rem;\n      font-weight: 700;\n      line-height: 1.2;\n      margin-bottom: 1rem;\n      color: var(--text);\n    }\n    .hero-content p {\n      font-size: 1.125rem;\n      color: var(--text-light);\n      margin-bottom: 1.5rem;\n    }\n    .benefits-list {\n      list-style: none;\n      display: flex;\n      flex-direction: column;\n      gap: 0.75rem;\n    }\n    .benefits-list li {\n      display: flex;\n      align-items: center;\n      gap: 0.75rem;\n      font-size: 1rem;\n      color: var(--text);\n    }\n    .check-icon {\n      width: 20px;\n      height: 20px;\n      color: #10B981;\n      flex-shrink: 0;\n    }\n    .social-proof {\n      display: flex;\n      gap: 2rem;\n      margin-top: 2rem;\n      padding-top: 1.5rem;\n      border-top: 1px solid var(--border);\n    }\n    .social-proof-item { text-align: center; }\n    .social-number {\n      display: block;\n      font-size: 1.5rem;\n      font-weight: 700;\n      color: var(--primary);\n    }\n    .social-label {\n      font-size: 0.813rem;\n      color: var(--text-light);\n    }\n    .form-card {\n      background: var(--white);\n      border-radius: var(--radius);\n      padding: 2rem;\n      box-shadow: 0 4px 24px rgba(0,0,0,0.08);\n      border: 1px solid var(--border);\n    }\n    .form-card h3 {\n      font-size: 1.25rem;\n      margin-bottom: 0.25rem;\n    }\n    .form-card .form-subtitle {\n      color: var(--text-light);\n      font-size: 0.875rem;\n      margin-bottom: 1.5rem;\n    }\n    .form-group {\n      margin-bottom: 1rem;\n    }\n    .form-group label {\n      display: block;\n      font-size: 0.875rem;\n      font-weight: 500;\n      margin-bottom: 0.375rem;\n      color: var(--text);\n    }\n    .required { color: #EF4444; margin-left: 2px; }\n    .form-input {\n      width: 100%;\n      padding: 0.625rem 0.875rem;\n      border: 1px solid var(--border);\n      border-radius: 8px;\n      font-size: 0.938rem;\n      font-family: inherit;\n      transition: border-color 0.2s, box-shadow 0.2s;\n      outline: none;\n    }\n    .form-input:focus {\n      border-color: var(--primary);\n      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);\n    }\n    .privacy-check {\n      display: flex;\n      align-items: flex-start;\n      gap: 0.5rem;\n      margin: 1.25rem 0;\n      font-size: 0.813rem;\n      color: var(--text-light);\n    }\n    .privacy-check input { margin-top: 2px; }\n    .privacy-check a { color: var(--primary); }\n    .submit-btn {\n      width: 100%;\n      padding: 0.875rem;\n      background: linear-gradient(135deg, var(--primary), var(--secondary));\n      color: white;\n      border: none;\n      border-radius: 8px;\n      font-size: 1.063rem;\n      font-weight: 600;\n      cursor: pointer;\n      transition: transform 0.15s, box-shadow 0.15s;\n      font-family: inherit;\n    }\n    .submit-btn:hover {\n      transform: translateY(-1px);\n      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);\n    }\n    .submit-btn:disabled {\n      opacity: 0.6;\n      cursor: not-allowed;\n      transform: none;\n    }\n    .form-success {\n      display: none;\n      text-align: center;\n      padding: 2rem 1rem;\n    }\n    .form-success.visible { display: block; }\n    .form-success .success-icon {\n      width: 64px;\n      height: 64px;\n      background: #D1FAE5;\n      border-radius: 50%;\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      margin: 0 auto 1rem;\n      font-size: 2rem;\n    }\n    .footer {\n      text-align: center;\n      padding: 2rem 0;\n      color: var(--text-light);\n      font-size: 0.813rem;\n    }\n    .footer a { color: var(--primary); text-decoration: none; }\n    .spinner {\n      display: inline-block;\n      width: 18px;\n      height: 18px;\n      border: 2px solid rgba(255,255,255,0.3);\n      border-top-color: white;\n      border-radius: 50%;\n      animation: spin 0.6s linear infinite;\n      vertical-align: middle;\n      margin-right: 0.5rem;\n    }\n    @keyframes spin { to { transform: rotate(360deg); } }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      ${logoHtml}\n    </div>\n\n    ${urgencyHtml}\n\n    <div class=\"hero\">\n      <div class=\"hero-content\">\n        <h1>${config.headline}</h1>\n        <p>${config.subheadline}</p>\n        <ul class=\"benefits-list\">\n          ${benefitsHtml}\n        </ul>\n        ${socialProofHtml}\n      </div>\n\n      <div class=\"form-card\">\n        <h3>Kostenlos erhalten</h3>\n        <p class=\"form-subtitle\">Füllen Sie das Formular aus und erhalten Sie sofort Zugang.</p>\n\n        <form id=\"leadForm\" novalidate>\n          ${formFieldsHtml}\n\n          <div class=\"privacy-check\">\n            <input type=\"checkbox\" id=\"privacy\" name=\"privacy\" required />\n            <label for=\"privacy\">\n              Ich stimme der Verarbeitung meiner Daten gemäß der\n              <a href=\"${config.privacyUrl}\" target=\"_blank\">Datenschutzerklärung</a> zu.\n            </label>\n          </div>\n\n          <button type=\"submit\" class=\"submit-btn\" id=\"submitBtn\">\n            ${config.ctaText}\n          </button>\n        </form>\n\n        <div class=\"form-success\" id=\"formSuccess\">\n          <div class=\"success-icon\">✓</div>\n          <h3>${config.thankYouHeadline}</h3>\n          <p style=\"margin-top: 0.5rem; color: var(--text-light);\">${config.thankYouText}</p>\n          <a href=\"#\" id=\"downloadLink\" class=\"submit-btn\" style=\"display:inline-block; margin-top:1.5rem; text-decoration:none; text-align:center;\">\n            Jetzt herunterladen\n          </a>\n        </div>\n      </div>\n    </div>\n\n    <div class=\"footer\">\n      <p>&copy; ${new Date().getFullYear()} ${config.companyName}. Alle Rechte vorbehalten.</p>\n      <p><a href=\"${config.privacyUrl}\">Datenschutz</a> · <a href=\"#impressum\">Impressum</a></p>\n    </div>\n  </div>\n\n  <script>\n    (function() {\n      const WEBHOOK_URL = '{{LEAD_WEBHOOK_URL}}';\n      const DOWNLOAD_URL = '${config.downloadFileUrl || '#'}';\n\n      const form = document.getElementById('leadForm');\n      const submitBtn = document.getElementById('submitBtn');\n      const formSuccess = document.getElementById('formSuccess');\n      const downloadLink = document.getElementById('downloadLink');\n\n      downloadLink.href = DOWNLOAD_URL;\n\n      // Tracking-Events\n      function trackEvent(event) {\n        if (typeof gtag === 'function') gtag('event', event);\n        if (typeof fbq === 'function') fbq('track', event);\n        console.log('[Funnel Event]', event);\n      }\n\n      trackEvent('page_view');\n\n      // Erster Feld-Fokus tracken\n      let formStarted = false;\n      form.querySelectorAll('.form-input').forEach(input => {\n        input.addEventListener('focus', () => {\n          if (!formStarted) {\n            formStarted = true;\n            trackEvent('form_start');\n          }\n        });\n      });\n\n      form.addEventListener('submit', async (e) => {\n        e.preventDefault();\n\n        if (!document.getElementById('privacy').checked) {\n          alert('Bitte stimmen Sie der Datenschutzerklärung zu.');\n          return;\n        }\n\n        submitBtn.disabled = true;\n        submitBtn.innerHTML = '<span class=\"spinner\"></span>Wird gesendet...';\n\n        const formData = new FormData(form);\n        const data = {};\n        formData.forEach((value, key) => { if (key !== 'privacy') data[key] = value; });\n        data.submittedAt = new Date().toISOString();\n        data.source = window.location.href;\n\n        try {\n          const response = await fetch(WEBHOOK_URL, {\n            method: 'POST',\n            headers: { 'Content-Type': 'application/json' },\n            body: JSON.stringify(data)\n          });\n\n          if (!response.ok) throw new Error('Übermittlung fehlgeschlagen');\n\n          trackEvent('form_submit');\n          form.style.display = 'none';\n          document.querySelector('.form-card h3').style.display = 'none';\n          document.querySelector('.form-subtitle').style.display = 'none';\n          formSuccess.classList.add('visible');\n        } catch (err) {\n          alert('Es gab einen Fehler. Bitte versuchen Sie es erneut.');\n          submitBtn.disabled = false;\n          submitBtn.textContent = '${config.ctaText}';\n        }\n      });\n\n      downloadLink.addEventListener('click', () => trackEvent('download_click'));\n    })();\n  </script>\n</body>\n</html>`;\n\nreturn [{ json: { ...config, landingPageHtml } }];"
+      },
+      "id": "html-generator",
+      "name": "Landing Page generieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const config = $input.first().json;\n\nconst thankYouHtml = `<!DOCTYPE html>\n<html lang=\"de\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Vielen Dank - ${config.companyName}</title>\n  <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap\" rel=\"stylesheet\">\n  <style>\n    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }\n    :root {\n      --primary: ${config.primaryColor};\n      --secondary: ${config.secondaryColor};\n      --accent: ${config.accentColor};\n    }\n    body {\n      font-family: \"Inter\", sans-serif;\n      background: #F9FAFB;\n      min-height: 100vh;\n      display: flex;\n      align-items: center;\n      justify-content: center;\n    }\n    .card {\n      background: white;\n      border-radius: 16px;\n      padding: 3rem;\n      max-width: 520px;\n      width: 90%;\n      text-align: center;\n      box-shadow: 0 4px 24px rgba(0,0,0,0.08);\n    }\n    .success-icon {\n      width: 80px;\n      height: 80px;\n      background: #D1FAE5;\n      border-radius: 50%;\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      margin: 0 auto 1.5rem;\n      font-size: 2.5rem;\n    }\n    h1 { font-size: 1.75rem; margin-bottom: 0.75rem; }\n    p { color: #6B7280; line-height: 1.6; margin-bottom: 1.5rem; }\n    .download-btn {\n      display: inline-block;\n      padding: 0.875rem 2rem;\n      background: linear-gradient(135deg, var(--primary), var(--secondary));\n      color: white;\n      border: none;\n      border-radius: 8px;\n      font-size: 1.063rem;\n      font-weight: 600;\n      text-decoration: none;\n      transition: transform 0.15s;\n    }\n    .download-btn:hover { transform: translateY(-1px); }\n    .back-link {\n      display: block;\n      margin-top: 1.5rem;\n      color: #6B7280;\n      font-size: 0.875rem;\n      text-decoration: none;\n    }\n    .back-link:hover { color: var(--primary); }\n  </style>\n</head>\n<body>\n  <div class=\"card\">\n    <div class=\"success-icon\">✓</div>\n    <h1>${config.thankYouHeadline}</h1>\n    <p>${config.thankYouText}</p>\n    <a href=\"${config.downloadFileUrl || '#'}\" class=\"download-btn\" id=\"downloadBtn\">\n      ${config.downloadFileName || 'Datei'} herunterladen\n    </a>\n    <a href=\"/\" class=\"back-link\">← Zurück zur Startseite</a>\n  </div>\n  <script>\n    document.getElementById('downloadBtn').addEventListener('click', function() {\n      if (typeof gtag === 'function') gtag('event', 'download_click');\n      if (typeof fbq === 'function') fbq('track', 'download_click');\n    });\n  </script>\n</body>\n</html>`;\n\nreturn [{ json: { ...config, thankYouHtml } }];"
+      },
+      "id": "thankyou-generator",
+      "name": "Thank-You Page generieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.webflow.com/v2/sites/{{ $json.webflowSiteId || $env.WEBFLOW_SITE_ID }}/pages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "webflowApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $json.companyName }} - Funnel Landing Page"
+            },
+            {
+              "name": "slug",
+              "value": "=funnel-{{ $json.companyName.toLowerCase().replace(/[^a-z0-9]+/g, '-') }}"
+            },
+            {
+              "name": "body",
+              "value": "={{ $json.landingPageHtml }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "webflow-create-page",
+      "name": "Webflow - Seite erstellen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1120, 200],
+      "credentials": {
+        "webflowApi": {
+          "id": "webflow-cred",
+          "name": "Webflow API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.customerEmail !== '' }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "check-notification",
+      "name": "Kunden-Benachrichtigung prüfen",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1120, 440]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Funnel erfolgreich generiert\",\n  \"companyName\": \"{{ $json.companyName }}\",\n  \"pages\": {\n    \"landingPage\": \"Generiert\",\n    \"thankYouPage\": \"Generiert\"\n  },\n  \"layoutMode\": \"{{ $json.layoutMode }}\",\n  \"webhookUrl\": \"Aktiv - Leads werden weitergeleitet\"\n}"
+      },
+      "id": "response-node",
+      "name": "Antwort senden",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1340, 200]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.SMTP_USER }}",
+        "toEmail": "={{ $json.customerEmail }}",
+        "subject": "Ihr neuer Funnel wurde erstellt",
+        "text": "=Hallo,\n\nIhr Lead-Funnel für \"{{ $json.companyName }}\" wurde erfolgreich erstellt.\n\nLayout-Modus: {{ $json.layoutMode }}\nFormular-Felder: {{ $json.formFields.length }}\n\nSie erhalten ab jetzt alle neuen Leads per E-Mail.\n\nViele Grüße,\nIhr Funnel-Generator"
+      },
+      "id": "send-notification",
+      "name": "Kunden benachrichtigen",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1340, 500],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-cred",
+          "name": "SMTP Credentials"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook - Funnel erstellen": {
+      "main": [
+        [{ "node": "Konfiguration verarbeiten", "type": "main", "index": 0 }]
+      ]
+    },
+    "Konfiguration verarbeiten": {
+      "main": [
+        [{ "node": "Landing Page generieren", "type": "main", "index": 0 }]
+      ]
+    },
+    "Landing Page generieren": {
+      "main": [
+        [{ "node": "Thank-You Page generieren", "type": "main", "index": 0 }]
+      ]
+    },
+    "Thank-You Page generieren": {
+      "main": [
+        [
+          { "node": "Webflow - Seite erstellen", "type": "main", "index": 0 },
+          { "node": "Kunden-Benachrichtigung prüfen", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Webflow - Seite erstellen": {
+      "main": [
+        [{ "node": "Antwort senden", "type": "main", "index": 0 }]
+      ]
+    },
+    "Kunden-Benachrichtigung prüfen": {
+      "main": [
+        [{ "node": "Kunden benachrichtigen", "type": "main", "index": 0 }],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    { "name": "funnel-generator" },
+    { "name": "automation" },
+    { "name": "webflow" }
+  ]
+}

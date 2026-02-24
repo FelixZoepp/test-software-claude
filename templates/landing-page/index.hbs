@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{headline}} - {{companyName}}</title>
+  <meta name="description" content="{{subheadline}}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/funnel.css">
+  {{#if googleAnalyticsId}}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{googleAnalyticsId}}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{googleAnalyticsId}}');
+  </script>
+  {{/if}}
+  {{#if facebookPixelId}}
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '{{facebookPixelId}}');
+    fbq('track', 'PageView');
+  </script>
+  {{/if}}
+  <style>
+    :root {
+      --primary: {{primaryColor}};
+      --secondary: {{secondaryColor}};
+      --accent: {{accentColor}};
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      {{#if logoUrl}}
+      <img src="{{logoUrl}}" alt="{{companyName}}" class="logo">
+      {{else}}
+      <h2 class="logo-text">{{companyName}}</h2>
+      {{/if}}
+    </header>
+
+    {{#if showUrgency}}
+    <div class="urgency-banner">
+      <span class="urgency-icon">&#9200;</span>
+      <span>Nur noch für kurze Zeit verfügbar!</span>
+    </div>
+    {{/if}}
+
+    <div class="hero">
+      <div class="hero-content">
+        <h1>{{headline}}</h1>
+        <p class="hero-subtitle">{{subheadline}}</p>
+
+        <ul class="benefits-list">
+          {{#each benefits}}
+          <li>
+            <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            {{this}}
+          </li>
+          {{/each}}
+        </ul>
+
+        {{#if showSocialProof}}
+        <div class="social-proof">
+          <div class="social-proof-item">
+            <span class="social-number">2.500+</span>
+            <span class="social-label">Downloads</span>
+          </div>
+          <div class="social-proof-item">
+            <span class="social-number">4.8/5</span>
+            <span class="social-label">Bewertung</span>
+          </div>
+          <div class="social-proof-item">
+            <span class="social-number">98%</span>
+            <span class="social-label">Zufriedenheit</span>
+          </div>
+        </div>
+        {{/if}}
+      </div>
+
+      <div class="form-card">
+        <h3>Kostenlos erhalten</h3>
+        <p class="form-subtitle">Füllen Sie das Formular aus und erhalten Sie sofort Zugang.</p>
+
+        <form id="leadForm" novalidate>
+          {{#each formFields}}
+          <div class="form-group">
+            <label for="{{this.name}}">
+              {{this.label}}
+              {{#if this.required}}<span class="required">*</span>{{/if}}
+            </label>
+            <input
+              type="{{this.type}}"
+              id="{{this.name}}"
+              name="{{this.name}}"
+              placeholder="{{this.placeholder}}"
+              {{#if this.required}}required{{/if}}
+              class="form-input"
+            />
+          </div>
+          {{/each}}
+
+          <div class="privacy-check">
+            <input type="checkbox" id="privacy" name="privacy" required />
+            <label for="privacy">
+              Ich stimme der Verarbeitung meiner Daten gemäß der
+              <a href="{{privacyUrl}}" target="_blank">Datenschutzerklärung</a> zu.
+            </label>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submitBtn">
+            {{ctaText}}
+          </button>
+        </form>
+
+        <div class="form-success" id="formSuccess">
+          <div class="success-icon">&#10003;</div>
+          <h3>{{thankYouHeadline}}</h3>
+          <p style="margin-top: 0.5rem; color: var(--text-light);">{{thankYouText}}</p>
+          <a href="#" id="downloadLink" class="submit-btn" style="display:inline-block; margin-top:1.5rem; text-decoration:none; text-align:center;">
+            Jetzt herunterladen
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <p>&copy; {{currentYear}} {{companyName}}. Alle Rechte vorbehalten.</p>
+      <p><a href="{{privacyUrl}}">Datenschutz</a> &middot; <a href="#impressum">Impressum</a></p>
+    </footer>
+  </div>
+
+  <script src="../assets/js/funnel.js"></script>
+  <script>
+    FunnelApp.init({
+      webhookUrl: '{{leadWebhookUrl}}',
+      downloadUrl: '{{downloadFileUrl}}',
+      ctaText: '{{ctaText}}'
+    });
+  </script>
+</body>
+</html>
