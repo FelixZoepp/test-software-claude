@@ -126,15 +126,17 @@ function generate(configPath, overrides) {
   // Output-Verzeichnis erstellen
   ensureDir(OUTPUT_DIR);
 
-  // Landing Page generieren
+  // Landing Page generieren (Root-Level → assets/ direkt)
   const landingTemplate = path.join(TEMPLATES_DIR, 'landing-page', 'index.hbs');
-  const landingHtml = compileTemplate(landingTemplate, vars);
+  const landingVars = Object.assign({}, vars, { assetsBasePath: './' });
+  const landingHtml = compileTemplate(landingTemplate, landingVars);
   fs.writeFileSync(path.join(OUTPUT_DIR, 'index.html'), landingHtml, 'utf-8');
   console.log('Landing Page generiert: dist/index.html');
 
-  // Thank-You Page generieren
+  // Thank-You Page generieren (Unterverzeichnis → ../assets/)
   const thankYouTemplate = path.join(TEMPLATES_DIR, 'thank-you-page', 'index.hbs');
-  const thankYouHtml = compileTemplate(thankYouTemplate, vars);
+  const thankYouVars = Object.assign({}, vars, { assetsBasePath: '../' });
+  const thankYouHtml = compileTemplate(thankYouTemplate, thankYouVars);
   ensureDir(path.join(OUTPUT_DIR, 'danke'));
   fs.writeFileSync(path.join(OUTPUT_DIR, 'danke', 'index.html'), thankYouHtml, 'utf-8');
   console.log('Thank-You Page generiert: dist/danke/index.html');

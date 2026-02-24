@@ -7,7 +7,7 @@
   <meta name="description" content="{{subheadline}}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/funnel.css">
+  <link rel="stylesheet" href="{{assetsBasePath}}assets/css/funnel.css">
   {{#if googleAnalyticsId}}
   <script async src="https://www.googletagmanager.com/gtag/js?id={{googleAnalyticsId}}"></script>
   <script>
@@ -139,7 +139,7 @@
     </footer>
   </div>
 
-  <script src="../assets/js/funnel.js"></script>
+  <script src="{{assetsBasePath}}assets/js/funnel.js"></script>
   <script>
     FunnelApp.init({
       webhookUrl: '{{leadWebhookUrl}}',
